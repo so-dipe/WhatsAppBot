@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends, Query
+from fastapi import FastAPI, HTTPException, Request
 import requests
 from config.config import Config
 
@@ -6,23 +6,13 @@ app = FastAPI()
 
 VERIFY_TOKEN = "your_whatsapp_verify_token"
 
-@app.get("/webhook")
-async def verify_webhook(
-    mode: str = Query(...),
-    token: str = Query(..., alias="hub.verify_token"),
-    challenge: str = Query(...),
-):
-    try:
-        # Check if the mode and token sent are correct
-        if mode == "subscribe" and token == VERIFY_TOKEN:
-            # Respond with 200 OK and challenge token from the request
-            print("WEBHOOK_VERIFIED")
-            return {"challenge": challenge}
+@app.post("/")
+def index():
+    return "welcome to app"
 
-        # Responds with '403 Forbidden' if verify tokens do not match
-        raise HTTPException(status_code=403, detail="Invalid verify token")
-
-    except HTTPException as e:
-        raise e
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+@app.get("/webhook/")
+def subscribe(request: Request):
+    print("subscribe is being called")
+    if request.query_params.get('hub.verify_token') == VERIFY_TOKEN:
+        return int(request.query_params.get('hub.challenge'))
+    return "Authentication failed. Invalid Token."
