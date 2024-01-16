@@ -23,7 +23,7 @@ async def callback(request: Request):
     response = whatsapp_client.process_notification(body)
     if len(response) > 0:
         for message in response:
-            reply = f"Hi, You sent: {message['message']['text']}"
+            reply = f"Hi, You sent: {message['message']}"
             whatsapp_client.send_message(message['from']['id'], reply)
             print(f"Reply sent to {message['from']['id']}")
 
