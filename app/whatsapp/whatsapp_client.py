@@ -26,6 +26,7 @@ class WhatsAppClient:
             if response.status_code == 200:
                 print("Message sent successfully!")
             else:
+                print(response.text)
                 print("Failed to send message.")
         except Exception as e:
             print(f"Error sending message: {str(e)}")
@@ -55,19 +56,43 @@ class WhatsAppClient:
         except Exception as e:
             print(f"Error sending template message: {str(e)}")
 
+    def reply_message(self, recipient_phone_number, message_id, message):
+        try:
+            url = f"{self.API_URL}/messages/"
+            payload = {
+                "messaging_product": "whatsapp",
+                "recipient_type": "individual",
+                "to": recipient_phone_number,
+                "context": {
+                    "message_id": message_id
+                },
+                "type": "text",
+                "text": {
+                    "body": message,
+                    "preview_url": False,
+                }
+            }
+            response = requests.post(url, json=payload, headers=self.headers)
+            if response.status_code == 200:
+                print("Reply sent successfully!")
+            else:
+                print("Failed to send reply.")
+        except Exception as e:
+            print(f"Error sending reply: {str(e)}")
+
     def process_notification(self, data):
         entries = data['entry']
         all_messages = []
         for entry in entries:
             for change in entry['changes']:
-                if change['field'] == 'messages':
+                if change['field'] == 'messages' and "messages" in change['value']:
                     messages = change['value']['messages']
                     for message in messages:
                         if message['type'] == "text":
                             message_dict = {
                                 "sender_no": message['from'],
                                 "message": message['text']['body'],
-                                "message_id": message['id'],
+                                "id": message['id'],
 
                             }
                             all_messages.append(message_dict)

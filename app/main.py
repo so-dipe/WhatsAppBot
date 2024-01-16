@@ -24,7 +24,7 @@ async def callback(request: Request):
     if len(response) > 0:
         for message in response:
             reply = f"Hi, You sent: {message['message']}"
-            whatsapp_client.send_message(message['sender_no'], reply)
+            whatsapp_client.reply_message(message['sender_no'], message['id'],reply)
             print(f"Reply sent to {message['sender_no']}")
 
     return {"status": "success"}, 200
