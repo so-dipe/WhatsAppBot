@@ -6,3 +6,4 @@ load_dotenv()
 class Config:
     WHATSAPP_ACCESS_TOKEN = os.environ.get("WHATSAPP_ACCESS_TOKEN")
     WHATSAPP_API_URL = os.environ.get("WHATSAPP_API_URL")
+    NUMBER_ID = os.environ.get("NUMBER_ID")

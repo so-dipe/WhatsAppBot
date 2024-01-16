@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from config.config import Config
-from whatsapp.whatsapp_client import WhatsAppClient
+from app.whatsapp.whatsapp_client import WhatsAppClient
 
 VERIFY_TOKEN = "your_whatsapp_verify_token"
 whatsapp_client = WhatsAppClient()
