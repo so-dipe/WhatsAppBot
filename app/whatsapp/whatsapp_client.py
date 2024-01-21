@@ -31,31 +31,6 @@ class WhatsAppClient:
         except Exception as e:
             print(f"Error sending message: {str(e)}")
 
-    def send_template_message(self, recipient_phone_number, template_name, template_parameters):
-        try:
-            url = f"{self.API_URL}/messages/"
-            payload = {
-                "messaging_product": "whatsapp",
-                "recipient_type": "individual",
-                "to": recipient_phone_number,
-                "type": "template",
-                "template": {
-                    "namespace": "your-namespace",
-                    "name": template_name,
-                    "language": {
-                        "policy": "deterministic",
-                        "code": "en"
-                    },
-                }
-            }
-            response = requests.post(url, json=payload, headers=self.headers)
-            if response.status_code == 200:
-                print("Template message sent successfully!")
-            else:
-                print("Failed to send template message.")
-        except Exception as e:
-            print(f"Error sending template message: {str(e)}")
-
     def reply_message(self, recipient_phone_number, message_id, message):
         try:
             url = f"{self.API_URL}/messages/"
@@ -80,20 +55,56 @@ class WhatsAppClient:
         except Exception as e:
             print(f"Error sending reply: {str(e)}")
 
-    def process_notification(self, data):
-        entries = data['entry']
-        all_messages = []
-        for entry in entries:
-            for change in entry['changes']:
-                if change['field'] == 'messages' and "messages" in change['value']:
-                    messages = change['value']['messages']
-                    for message in messages:
-                        if message['type'] == "text":
-                            message_dict = {
-                                "sender_no": message['from'],
-                                "message": message['text']['body'],
-                                "id": message['id'],
+    def process_payload(self, notification):
+        try:
+            processed_payloads = []
+            entries = notification.get('entry', [])
+            for entry in entries:
+                changes = entry.get('changes', [])
+                for change in changes:
+                    processed_payload = self.process_change(change)
+                    if processed_payload:
+                        processed_payloads.extend(processed_payload)
+            return processed_payloads
+        except Exception as e:
+            print(f"Error processing payload: {e}")
 
-                            }
-                            all_messages.append(message_dict)
-        return all_messages
+    def process_change(self, change):
+        try:
+            field = change.get('field', '')
+            value = change.get('value', {})
+            if field == 'messages' and 'messages' in value:
+                messages = value['messages']
+                return self.process_messages(messages)
+            elif field == 'messages' and 'statuses' in value:
+                #TODO: Implement processing for statuses
+                pass
+        except Exception as e:
+            print(f"Error processing change: {e}")
+    
+
+    def process_messages(self, messages):
+        processed_messages = []
+        for message in messages:
+            processed_message = {
+                "from": message.get("from"),
+                "id": message.get("id"),
+                "timestamp": message.get("timestamp"),
+                "type": message.get("type"),
+            }
+            if message.get("type") == "text":
+                processed_message["text"] = message.get("text", {}).get("body")
+            elif message.get("type") in ["image", "audio", "sticker"]:
+                media_type = message.get("type")
+                media = message.get(media_type, {})
+                processed_message["caption"] = media.get("caption")
+                try:
+                    url = f"{Config.WHATSAPP_API_URL}/{media.get('id')}"
+                    response = requests.get(url=url, headers=self.headers)
+                    url = response.json().get('url')
+                    response = requests.get(url=url, headers=self.headers)
+                    processed_message["media_bytes"] = response.content
+                except Exception as e:
+                    print(f"Error getting image URL: {e}")
+            processed_messages.append(processed_message)
+        return processed_messages
