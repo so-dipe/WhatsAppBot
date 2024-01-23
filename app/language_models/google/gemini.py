@@ -1,8 +1,11 @@
 import vertexai
-from vertexai.preview.generative_models import GenerativeModel, Content, Part, Image, ChatSession
+from vertexai.preview.generative_models import GenerativeModel, Image, ChatSession
 from config.config import Config
 import json
 from google.oauth2 import service_account
+from ...redis.redis_client import RedisClient
+
+redis_client = RedisClient()
 
 with open(Config.SERVICE_ACCOUNT_PATH, "r") as f:
     credentials = json.load(f)
@@ -32,3 +35,16 @@ def get_chat_response(chat: ChatSession, prompt: str, image: Image = None) -> st
             print(f"Error sending message: {str(e)}")
             response = "sorry, an error occured."
     return response
+
+def save_history(chat_id, chat_session):
+    history = chat_session.history
+    redis_client.save_chat_session(chat_id, history)    
+
+def get_history(chat_id):
+    chat_session = init_chat()
+    history = redis_client.get_chat_session(chat_id)
+    if history is False:
+        save_history(chat_id, chat_session)
+    else:
+        chat_session._history = history
+    return chat_session

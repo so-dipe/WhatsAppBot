@@ -50,9 +50,8 @@ class WhatsAppClient:
             response = requests.post(url, json=payload, headers=self.headers)
             if response.status_code == 200:
                 print("Reply sent successfully!")
-            else:
-                print("Failed to send reply.")
         except Exception as e:
+            print(response.status_code)
             print(f"Error sending reply: {str(e)}")
 
     def process_payload(self, notification):
