@@ -1,5 +1,14 @@
 import requests
 from config.config import Config
+import json
+import os
+
+# BASE_PATH = os.path.dirname(__file__)
+
+# WELCOME_TEMPLATE_FILE_PATH = "assets/templates/welcome_template.json"
+# WELCOME_TEMPLATE_FILE_PATH = os.path.join(BASE_PATH, WELCOME_TEMPLATE_FILE_PATH)
+# with open(WELCOME_TEMPLATE_FILE_PATH, "r") as f:
+#     WELCOME_TEMPLATE = json.load(f)
 
 class WhatsAppClient:
     def __init__(self):
@@ -30,6 +39,32 @@ class WhatsAppClient:
                 print("Failed to send message.")
         except Exception as e:
             print(f"Error sending message: {str(e)}")
+
+
+    def send_template_message(self, recipient_phone_number, template_name):
+        url = f"{self.API_URL}/messages/"
+        payload = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": recipient_phone_number,
+            "type": "template",
+            "template": {
+                "name": template_name,
+                "language": {
+                    "policy": "deterministic",
+                    "code": "en"
+                }
+            }
+        }
+        try:
+            response = requests.post(url, json=payload, headers=self.headers)
+            if response.status_code == 200:
+                print("Message sent successfully!")
+            else:
+                print(response.status_code, response.text)
+        except Exception as e:
+            print(f"Error sending interactive template message: {str(e)}")
+
 
     def reply_message(self, recipient_phone_number, message_id, message):
         try:
@@ -105,5 +140,8 @@ class WhatsAppClient:
                     processed_message["media_bytes"] = response.content
                 except Exception as e:
                     print(f"Error getting image URL: {e}")
+            elif message.get("type") == "button":
+                processed_message['text'] = message.get('button').get('text')
+                processed_message['payload'] = message.get('button').get('payload')
             processed_messages.append(processed_message)
         return processed_messages

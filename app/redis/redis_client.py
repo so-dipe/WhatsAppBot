@@ -6,24 +6,37 @@ class RedisClient:
     def __init__(self) -> None:
         self.redis_client = redis.StrictRedis.from_url(Config.REDIS_URL)
     
-    def save_chat_session(self, chat_id, history):
+    def save_chat_session(self, chat_id, history, model_name):
         try:
-            history = pickle.dumps(history)
+            data = {'history': history, 'model_name': model_name}
+            data = pickle.dumps(data)
             with self.redis_client.pipeline() as pipe:
-                pipe.set(chat_id, history)
+                pipe.set(chat_id, data)
                 pipe.expire(chat_id, 60 * 5)
                 pipe.execute()
         except Exception as e:
             print(f"Error saving chat session: {str(e)}")
-    
+
     def get_chat_session(self, chat_id):
         try:
-            history = self.redis_client.get(chat_id)
-            if history:
-                history = pickle.loads(history)
-                return history
+            data = self.redis_client.get(chat_id)
+            if data:
+                data = pickle.loads(data)
+                return data['history']
             else:
                 return False
         except Exception as e:
             print(f"Error getting chat session: {str(e)}")
+            return None
+        
+    def get_model_name(self, chat_id):
+        try:
+            data = self.redis_client.get(chat_id)
+            if data:
+                data = pickle.loads(data)
+                return data['model_name']
+            else:
+                return None
+        except Exception as e:
+            print(f"Error getting model name: {str(e)}")
             return None

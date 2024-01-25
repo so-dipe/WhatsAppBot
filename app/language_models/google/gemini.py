@@ -32,7 +32,8 @@ class GeminiChatModel(ChatModel):
 
     def save_history(self, chat_id, chat_session):
         history = chat_session.history
-        self.redis_client.save_chat_session(chat_id, history)
+        model_name = "gemini-pro-vision"
+        self.redis_client.save_chat_session(chat_id, history, model_name)
 
     def get_history(self, chat_id):
         chat_session = self.init_chat()

@@ -43,7 +43,8 @@ class GoogleChatModel(AbstractChatModel):
     
     def save_history(self, chat_id, chat_session: ChatSession):
         history = chat_session.message_history
-        self.redis_client.save_chat_session(chat_id, history)
+        model_name = "google-chat-bison"  # replace with your actual model name
+        self.redis_client.save_chat_session(chat_id, history, model_name)
 
     def get_history(self, chat_id):
         chat_session = self.init_chat()
