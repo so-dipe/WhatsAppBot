@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request
 from config.config import Config
 from app.whatsapp.whatsapp_client import WhatsAppClient
-from app.language_models.google.gemini import get_chat_response, save_history, get_history
+from app.language_models.google.google_chat_model import get_chat_response, save_history, get_history
 # from app.language_models.hugging_face.model import get_chat_response, save_history, get_history
 from app.redis.redis_client import RedisClient
 

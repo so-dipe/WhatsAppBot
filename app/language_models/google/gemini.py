@@ -1,17 +1,11 @@
-import vertexai
 from vertexai.preview.generative_models import GenerativeModel, Image, ChatSession
 from config.config import Config
-import json
-from google.oauth2 import service_account
 from ...redis.redis_client import RedisClient
+from .setup import initialize_vertexai
+
+initialize_vertexai()
 
 redis_client = RedisClient()
-
-with open(Config.SERVICE_ACCOUNT_PATH, "r") as f:
-    credentials = json.load(f)
-    credentials = service_account.Credentials.from_service_account_info(credentials)
-
-vertexai.init(project=Config.GOOGLE_PROJECT_ID ,credentials=credentials)
 
 model = GenerativeModel("gemini-pro-vision")
 
