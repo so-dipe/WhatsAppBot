@@ -8,6 +8,7 @@ from ..chat_model import ChatModel as AbstractChatModel
 class GoogleChatModel(AbstractChatModel):
     def __init__(self, model_name="chat-bison@001", image_model_name="imagetext@001", system_prompt_file_path="assets/system-prompt.txt"):
         initialize_vertexai()
+        self.model_name = model_name
         self.redis_client = RedisClient()
         self.chat_model = ChatModel.from_pretrained(model_name)
         if image_model_name:
@@ -19,6 +20,7 @@ class GoogleChatModel(AbstractChatModel):
                 self.system_prompt = f.read()
 
     def init_chat(self):
+        print(self.chat_model)
         chat = self.chat_model.start_chat(context=self.system_prompt)
         return chat
 
@@ -43,14 +45,17 @@ class GoogleChatModel(AbstractChatModel):
     
     def save_history(self, chat_id, chat_session: ChatSession):
         history = chat_session.message_history
-        model_name = "google-chat-bison"  # replace with your actual model name
-        self.redis_client.save_chat_session(chat_id, history, model_name)
+        self.redis_client.save_data(chat_id, history, self.model_name)
 
     def get_history(self, chat_id):
         chat_session = self.init_chat()
-        history = self.redis_client.get_chat_session(chat_id)
-        if history is False:
+        data = self.redis_client.get_data(chat_id)
+        history = data['history']
+        if (history is False) or (data['model_name'] != self.model_name):
+            print('bison', chat_session)
             self.save_history(chat_id, chat_session)
+            print('history saved')
         else:
             chat_session._message_history = history
         return chat_session
+
