@@ -36,7 +36,7 @@ async def callback(request: Request):
                 print("Message is too old. Ignoring...")
                 continue
 
-            reply = process_incoming_message(message)
+            reply = await process_incoming_message(message)
 
             if reply:
                 whatsapp_client.reply_message(message['from'], message['id'], reply)

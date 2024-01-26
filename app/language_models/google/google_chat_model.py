@@ -42,6 +42,27 @@ class GoogleChatModel(AbstractChatModel):
             print(f"Error sending message: {str(e)}")
             response = "sorry, an error occured."
         return response
+
+    async def get_async_chat_response(self, chat: ChatSession, prompt: str, image=None):
+        try:
+            if image:
+                image = Image(image)
+                response = self.image_model.get_captions(image)[0]
+                chat._message_history.extend(
+                    [
+                        ChatMessage(content="Given the image, what do you see", author="user"),
+                        ChatMessage(content=f"I see: {response}", author="bot"),
+                    ]
+                )
+                response = await chat.send_message_async(prompt)
+                response = response.text
+            else:
+                response = await chat.send_message_async(prompt)
+                response = response.text
+        except Exception as e:
+            print(f"Error sending message: {str(e)}")
+            response = "sorry, an internal error occured."
+        return response
     
     def save_history(self, chat_id, chat_session: ChatSession):
         history = chat_session.message_history

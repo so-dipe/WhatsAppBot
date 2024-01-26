@@ -28,20 +28,20 @@ def get_chat_model(redis_client, message, chat_models):
     else: 
         return None
 
-def process_incoming_message(message):
+async def process_incoming_message(message):
     chat_model = get_chat_model(redis_client, message, chat_models)
     print(chat_model)
     if chat_model:
         chat_session = chat_model.get_history(message['from'])
         if message['type'] == 'image':
-            reply = process_image_message(chat_model, chat_session, message)
+            reply = await process_image_message(chat_model, chat_session, message)
         elif message['type'] == 'text':
             if message['text'].startswith("/"):
                 reply = process_special_commands(message)
             else:
-                reply =  chat_model.get_chat_response(chat_session, message['text'])
+                reply =  await chat_model.get_async_chat_response(chat_session, message['text'])
         chat_model.save_history(message['from'], chat_session)
-        
+
         if message['type'] == 'button':
             reply = process_button_message(message)
     else:
@@ -53,10 +53,10 @@ def process_incoming_message(message):
     return reply
 
 
-def process_image_message(chat_model, chat_session, message):
+async def process_image_message(chat_model, chat_session, message):
     if message['caption'] is None:
         message['caption'] = "Explain this image."
-    reply = chat_model.get_chat_response(chat_session, message['caption'], message['media_bytes'])
+    reply = await chat_model.get_async_chat_response(chat_session, message['caption'], message['media_bytes'])
     return reply
 
 

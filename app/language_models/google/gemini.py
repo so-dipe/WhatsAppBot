@@ -3,6 +3,7 @@ from ...redis.redis_client import RedisClient
 from .setup import initialize_vertexai
 from ..chat_model import ChatModel
 import os
+import asyncio
 
 
 class GeminiChatModel(ChatModel):
@@ -31,9 +32,27 @@ class GeminiChatModel(ChatModel):
                 response = "sorry, an error occured."
         else:
             prompt = f"<SYS> Context: {self.system_prompt} <SYS> \n Query: {prompt}"
-            response = chat.send_message(prompt)
             try:
                 response = chat.send_message(prompt).text
+            except Exception as e:
+                print(f"Error sending message: {str(e)}")
+                response = "sorry, an error occured."
+        return response
+
+    async def get_async_chat_response(self, chat: ChatSession, prompt: str, image=None) -> str:
+        if image:
+            image = Image.from_bytes(image)
+            try:
+                response = await chat.send_message_async([prompt, image])
+                response = response.text
+            except Exception as e:
+                print(f"Error sending image: {str(e)}")
+                response = "sorry, an error occured."
+        else:
+            prompt = f"<SYS> Context: {self.system_prompt} <SYS> \n Query: {prompt}"
+            try:
+                response = await chat.send_message_async(prompt)
+                response = response.text
             except Exception as e:
                 print(f"Error sending message: {str(e)}")
                 response = "sorry, an error occured."
