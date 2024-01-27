@@ -13,3 +13,4 @@ class Config:
     REDIS_URL = os.environ.get("REDIS_URL")
     HUGGINGFACE_MODEL_API_URL = os.environ.get("HUGGINGFACE_MODEL_API_URL")
     HUGGINGFACE_TOKEN = os.environ.get("HUGGINGFACE_TOKEN")
+    REDIS_SESSION_LENGTH = os.environ.get("REDIS_SESSION_LENGTH")

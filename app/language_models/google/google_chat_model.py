@@ -20,7 +20,6 @@ class GoogleChatModel(AbstractChatModel):
                 self.system_prompt = f.read()
 
     def init_chat(self):
-        print(self.chat_model)
         chat = self.chat_model.start_chat(context=self.system_prompt)
         return chat
 
@@ -40,7 +39,7 @@ class GoogleChatModel(AbstractChatModel):
                 response = chat.send_message(prompt).text
         except Exception as e:
             print(f"Error sending message: {str(e)}")
-            response = "sorry, an error occured."
+            response = "Couldn't generate a response."
         return response
 
     async def get_async_chat_response(self, chat: ChatSession, prompt: str, image=None):
@@ -61,7 +60,7 @@ class GoogleChatModel(AbstractChatModel):
                 response = response.text
         except Exception as e:
             print(f"Error sending message: {str(e)}")
-            response = "sorry, an internal error occured."
+            response = "Couldn't generate a response."
         return response
     
     def save_history(self, chat_id, chat_session: ChatSession):
@@ -73,9 +72,7 @@ class GoogleChatModel(AbstractChatModel):
         data = self.redis_client.get_data(chat_id)
         history = data['history']
         if (history is False) or (data['model_name'] != self.model_name):
-            print('bison', chat_session)
             self.save_history(chat_id, chat_session)
-            print('history saved')
         else:
             chat_session._message_history = history
         return chat_session

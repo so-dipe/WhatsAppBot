@@ -3,13 +3,6 @@ from config.config import Config
 import json
 import os
 
-# BASE_PATH = os.path.dirname(__file__)
-
-# WELCOME_TEMPLATE_FILE_PATH = "assets/templates/welcome_template.json"
-# WELCOME_TEMPLATE_FILE_PATH = os.path.join(BASE_PATH, WELCOME_TEMPLATE_FILE_PATH)
-# with open(WELCOME_TEMPLATE_FILE_PATH, "r") as f:
-#     WELCOME_TEMPLATE = json.load(f)
-
 class WhatsAppClient:
     def __init__(self):
         self.headers = {

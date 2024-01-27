@@ -12,7 +12,7 @@ class RedisClient:
             data = pickle.dumps(data)
             with self.redis_client.pipeline() as pipe:
                 pipe.set(chat_id, data)
-                pipe.expire(chat_id, 60 * 1)
+                pipe.expire(chat_id, Config.REDIS_SESSION_LENGTH)
                 pipe.execute()
         except Exception as e:
             print(f"Error saving chat session: {str(e)}")

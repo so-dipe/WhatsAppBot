@@ -4,6 +4,7 @@ from app.redis.redis_client import RedisClient
 from app.language_models.google.google_chat_model import GoogleChatModel
 from app.language_models.google.gemini import GeminiChatModel
 
+
 whatsapp_client = WhatsAppClient()
 redis_client = RedisClient()
 
@@ -20,7 +21,6 @@ def is_message_old(message):
 
 def get_chat_model(redis_client, message, chat_models):
     model_name = redis_client.get_model_name(message['from'])
-    print(model_name)
     if model_name == "gemini-pro-vision":
         return chat_models[1]
     elif model_name == "chat-bison@001":
@@ -30,7 +30,6 @@ def get_chat_model(redis_client, message, chat_models):
 
 async def process_incoming_message(message):
     chat_model = get_chat_model(redis_client, message, chat_models)
-    print(chat_model)
     if chat_model:
         chat_session = chat_model.get_history(message['from'])
         if message['type'] == 'image':
@@ -40,6 +39,8 @@ async def process_incoming_message(message):
                 reply = process_special_commands(message)
             else:
                 reply =  await chat_model.get_async_chat_response(chat_session, message['text'])
+        # elif message['type'] == 'audio':
+        #     reply = await chat_model.get_async_chat_response(chat_session, prompt="", audio=message['media_bytes'])
         chat_model.save_history(message['from'], chat_session)
 
         if message['type'] == 'button':
