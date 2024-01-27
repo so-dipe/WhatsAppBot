@@ -4,9 +4,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip install -r requirements.txt
+# RUN pip install -r requirements.txt
+RUN ./install.sh
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-# CMD ["bash", "./run.sh"]
+# CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["bash", "./run.sh"]
