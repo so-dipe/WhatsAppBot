@@ -6,16 +6,8 @@ redis-server /app/config/redis.conf &
 
 ls -la 
 
-cd secrets
+ls -la secrets
 
-ls -la
-
-cd service-account
-
-ls -la
-
-cd ..
-
-cd ..
+ls -la secrets/service-account
 
 uvicorn app.main:app --host 0.0.0.0 --port 8000
