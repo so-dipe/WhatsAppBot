@@ -4,6 +4,10 @@ WORKDIR /app
 
 COPY . .
 
+RUN ls -la
+
+RUN cd secrets && ls -la
+
 RUN pip install -r requirements.txt
 
 EXPOSE 8000
