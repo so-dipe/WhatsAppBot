@@ -8,6 +8,6 @@ ls
 
 ls secrets
 
-ls secrets/service-account
+cat secrets/service-account.json
 
 uvicorn app.main:app --host 0.0.0.0 --port 8000
