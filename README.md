@@ -4,8 +4,9 @@ This is the bot that can. Powered by FastAPI and WhatsApp Business Cloud API.
 
 ## Features
 
-- Text and Image input support for Google LLMs (PaLM and Gemini-Pro)
-- Basic support for Huggingface inference API (untested)
+- Intelligent Text and Image Input: Ask complex questions, get creative prompts answered, and explore different styles with Google's cutting-edge language models.
+- Seamless WhatsApp Integration: Send and receive messages through WhatsApp, making AI accessible and convenient right at your fingertips.
+- Huggingface Inference Support (Beta): Access a broad range of pre-trained models for diverse text tasks while exploring the potential of Huggingface's powerful ecosystem.
 
 ## Getting Started
 
@@ -14,37 +15,35 @@ This is the bot that can. Powered by FastAPI and WhatsApp Business Cloud API.
 - Python 3.10.13
 - FastAPI
 - WhatsApp Business Cloud API credentials
-- Google Cloud Platform (GCP) credentials/service account with access to Vertex AI (to use Google LLMs)
-- Other APIs you plan to use
+- Google Cloud Platform (GCP) credentials/service account with access to Vertex AI (for Google LLMs)
+- (Optional) Additional APIs specific to your desired functionality
 
 ### Installation
 
-To use this locally:
+__Option 1__: Easy Setup (Recommended)
+1. Download the repository
+    ```bash
+    git clone https://github.com/so-dipe/WhatsAppBot.git
+    cd WhatsAppBot
+    ```
 
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/so-dipe/WhatsAppBot.git
-   cd WhatsAppBot
-   ```
 2. Run the installation script:
     ```bash
     ./install.sh
     ```
 
-__OR if you prefer to do it manually__:, 
+__Option 2: Manual Setup__:, 
 
-2.  - Create a Python Virtual Environment in the repository:
+1. Create a Python Virtual Environment in the repository:
     ```bash
     python -m venv venv
     ```
-
-    - Install dependencies in the virtual environment:
+2. Install dependencies in the virtual environment:
     ```bash
     source venv/bin/activate
     pip install -r requirements.txt
     ```
-3. Configurations
+3. Configure settings and Environment Variables
 
     1. Copy the `sample_config.env` file
 
@@ -55,6 +54,9 @@ __OR if you prefer to do it manually__:,
     3. If you plan on using google's models, paste a copy of your service account at `service_account_key.json`
 
     alternatively, run the `configure.sh` script
+    ```bash
+    ./configure.sh
+    ```
 
 ## Usage
 1. Run `run_app.sh` bash script
@@ -62,8 +64,8 @@ __OR if you prefer to do it manually__:,
     ./run_app.sh
     ```
 
-OR do it yourself by
-1.  - Run FastAPI server
+OR Manually start FastAPI and Redis servers.
+1.  Run FastAPI server
     ```bash
     uvicorn app.main:app 
     ```
@@ -73,7 +75,7 @@ OR do it yourself by
     ```
     by default, a port is opened on 8000.
 
-2.  - Run Redis Server
+2.  Run Redis Server
     ```bash
     redis-server config/redis.conf
     ```
@@ -88,9 +90,13 @@ OR do it yourself by
 
 
 ## Contributing
+<!-- Yo! So you want to contribute to this project. Head on over to (Contributing.md) to learn how you can do so. -->
 
 ## Roadmap
-
+- Seamless Huggingface Inference API Integration: Empower users with a vast library of pre-trained models and a user-friendly model selection interface.
+- Expand LLM Hosting Platform Support: Welcome DeepInfra, AnyScale, and potentially more to offer diverse LLM hosting options.
+- Unleash Speech-to-Text Capabilities: Enable voice-based interactions for a more natural and accessible experience.
+- Unlock the Power of Documents: Facilitate conversations around PDFs and document files for enriched knowledge sharing.
 
 ## License
 
