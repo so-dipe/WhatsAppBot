@@ -12,11 +12,6 @@ redis_client = RedisClient()
 
 app = FastAPI()
 
-chat_models = [
-    GoogleChatModel(),
-    GeminiChatModel(),
-]
-
 @app.get("/webhook/")
 def subscribe(request: Request):
     print("subscribe is being called")
