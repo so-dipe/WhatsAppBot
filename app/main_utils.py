@@ -37,6 +37,7 @@ async def process_incoming_message(message):
         elif message['type'] == 'text':
             if message['text'].startswith("/"):
                 reply = process_special_commands(message)
+                return reply
             else:
                 reply =  await chat_model.get_async_chat_response(chat_session, message['text'])
         # elif message['type'] == 'audio':

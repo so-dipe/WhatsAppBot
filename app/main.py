@@ -21,7 +21,7 @@ def subscribe(request: Request):
     return "Authentication failed. Invalid Token."
 
 #use /webhook/ when in dev and prod.
-@app.post("/webhook/")
+@app.post("/webhook")
 async def callback(request: Request):
     print("callback is being called")
     body = await request.json()

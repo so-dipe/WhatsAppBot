@@ -77,7 +77,7 @@ class GeminiChatModel(ChatModel):
                 print(f"Error sending audio: {str(e)}")
                 response = "Couldn't generate a response."
         else:
-            prompt = f"Context: {self.system_prompt}\n Query: {prompt}"
+            prompt = f"{self.system_prompt} \n {prompt}"
             try:
                 response = await chat.send_message_async(prompt)
                 response = response.text
