@@ -12,7 +12,7 @@ redis_client = RedisClient()
 
 app = FastAPI()
 
-@app.get("/webhook/")
+@app.get("/webhook")
 def subscribe(request: Request):
     print("subscribe is being called")
     if request.query_params.get('hub.verify_token') == VERIFY_TOKEN:
