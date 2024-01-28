@@ -26,7 +26,7 @@ def get_chat_model(redis_client, message, chat_models):
     elif model_name == "chat-bison@001":
         return chat_models[0]
     else: 
-        return None
+        return chat_models[1]
 
 async def process_incoming_message(message):
     chat_model = get_chat_model(redis_client, message, chat_models)
@@ -50,7 +50,7 @@ async def process_incoming_message(message):
             reply = process_button_message(message)
         else:
             reply = "Sorry, you need to select a model to chat with."
-            whatsapp_client.send_template_message(message['from'], "welcome_message")
+            # whatsapp_client.send_template_message(message['from'], "welcome_message")
     return reply
 
 
@@ -63,7 +63,8 @@ async def process_image_message(chat_model, chat_session, message):
 
 def process_special_commands(message):
     if "reset" in message['text'].lower():
-        whatsapp_client.send_template_message(message['from'], "welcome_message")
+        # whatsapp_client.send_template_message(message['from'], "welcome_message")
+        whatsapp_client.send_message(message['from'], "Resetting chat history...")
         redis_client.delete_data(message['from'])
 
 def process_button_message(message):

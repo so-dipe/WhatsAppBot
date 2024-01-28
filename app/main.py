@@ -12,6 +12,7 @@ redis_client = RedisClient()
 
 app = FastAPI()
 
+#use /webhook when in production mode
 @app.get("/webhook")
 def subscribe(request: Request):
     print("subscribe is being called")
@@ -19,7 +20,7 @@ def subscribe(request: Request):
         return int(request.query_params.get('hub.challenge'))
     return "Authentication failed. Invalid Token."
 
-#use /webhook/ when in development mode. Use /webhook when in production mode
+#use /webhook/ when in dev and prod.
 @app.post("/webhook/")
 async def callback(request: Request):
     print("callback is being called")
