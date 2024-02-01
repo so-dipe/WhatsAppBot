@@ -9,7 +9,7 @@ from vertexai.preview.generative_models import (
 )
 from ...redis.redis_client import RedisClient
 from .setup import initialize_vertexai, initialize_speech_client
-from ..chat_model import ChatModel
+from ..chat_model import ChatModel, PERSONALITIES
 import os
 from google.cloud import speech
 
@@ -24,6 +24,7 @@ def transcribe(audio: bytes):
         sample_rate_hertz=16000,
         language_code="en-US",
     )
+
     response = speech_client.recognize(config=config, audio=audio)
     for result in response.results:
         return format(result.alternatives[0].transcript)
@@ -44,6 +45,7 @@ class GeminiChatModel(ChatModel):
             system_prompt_file_path = os.path.join(base_dir, system_prompt_file_path)
             with open(system_prompt_file_path, "r") as f:
                 self.system_prompt = f.read()
+        self.personality = PERSONALITIES["MARVIN"]
         self.config = GenerationConfig(
             temperature=0.9,
             max_output_tokens=200,
@@ -83,6 +85,7 @@ class GeminiChatModel(ChatModel):
 
     async def handle_text(self, chat: ChatSession, text: str) -> str:
         try:
+            text = self.personality + text
             response = await chat.send_message_async(
                 text,
                 generation_config=self.config,

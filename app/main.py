@@ -12,15 +12,15 @@ redis_client = RedisClient()
 
 app = FastAPI()
 
-#use /webhook when in production mode
+
 @app.get("/webhook")
 def subscribe(request: Request):
     print("subscribe is being called")
-    if request.query_params.get('hub.verify_token') == VERIFY_TOKEN:
-        return int(request.query_params.get('hub.challenge'))
+    if request.query_params.get("hub.verify_token") == VERIFY_TOKEN:
+        return int(request.query_params.get("hub.challenge"))
     return "Authentication failed. Invalid Token."
 
-#use /webhook/ when in dev and prod.
+
 @app.post("/webhook")
 async def callback(request: Request):
     print("callback is being called")
@@ -35,6 +35,6 @@ async def callback(request: Request):
             reply = await process_incoming_message(message)
 
             if reply:
-                whatsapp_client.reply_message(message['from'], message['id'], reply)
+                whatsapp_client.reply_message(message["from"], message["id"], reply)
                 print(f"Reply sent to {message['from']}")
     return {"status": "success"}, 200
