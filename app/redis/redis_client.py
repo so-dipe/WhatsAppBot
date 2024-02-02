@@ -2,13 +2,18 @@ import redis
 from config.config import Config
 import pickle
 
+
 class RedisClient:
     def __init__(self) -> None:
         self.redis_client = redis.StrictRedis.from_url(Config.REDIS_URL)
 
-    def save_data(self, chat_id, history, model_name):
+    def save_data(self, chat_id, history, model_name, personality=None):
         try:
-            data = {'history': history, 'model_name': model_name}
+            data = {
+                "history": history,
+                "model_name": model_name,
+                "personality": personality,
+            }
             data = pickle.dumps(data)
             with self.redis_client.pipeline() as pipe:
                 pipe.set(chat_id, data)
@@ -33,25 +38,25 @@ class RedisClient:
             data = self.redis_client.get(chat_id)
             if data:
                 data = pickle.loads(data)
-                return data['history']
+                return data["history"]
             else:
                 return False
         except Exception as e:
             print(f"Error getting chat session: {str(e)}")
             return None
-        
+
     def get_model_name(self, chat_id):
         try:
             data = self.redis_client.get(chat_id)
             if data:
                 data = pickle.loads(data)
-                return data['model_name']
+                return data["model_name"]
             else:
                 return None
         except Exception as e:
             print(f"Error getting model name: {str(e)}")
             return None
-        
+
     def delete_data(self, chat_id):
         try:
             self.redis_client.delete(chat_id)

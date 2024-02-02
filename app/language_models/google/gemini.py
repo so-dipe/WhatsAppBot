@@ -42,21 +42,25 @@ class GeminiChatModel(ChatModel):
         self.model = GenerativeModel(model_name)
         if system_prompt_file_path:
             base_dir = os.path.dirname(__file__)
-            system_prompt_file_path = os.path.join(base_dir, system_prompt_file_path)
+            system_prompt_file_path = os.path.join(
+                base_dir, system_prompt_file_path
+            )
             with open(system_prompt_file_path, "r") as f:
                 self.system_prompt = f.read()
-        self.personality = PERSONALITIES["MARVIN"]
+        self.PERSONALITIES = PERSONALITIES
         self.config = GenerationConfig(
             temperature=0.9,
             max_output_tokens=200,
         )
         self.safety_settings = {
-            HarmCategory(1): HarmBlockThreshold(2),  # hate speech - block all
+            # hate speech - block all
+            HarmCategory(1): HarmBlockThreshold(4),
             # dangerous content - block none
             HarmCategory(2): HarmBlockThreshold(4),
-            HarmCategory(3): HarmBlockThreshold(3),  # harassment - block most
+            # harassment - block most
+            HarmCategory(3): HarmBlockThreshold(4),
             # sexually explicit - block some
-            HarmCategory(4): HarmBlockThreshold(2),
+            HarmCategory(4): HarmBlockThreshold(4),
         }
 
     def init_chat(self):
@@ -71,21 +75,25 @@ class GeminiChatModel(ChatModel):
         except ResponseBlockedError as e:
             print(f"Error generating response: {str(e)}")
             response_text = (
-                "sorry, I've been modified to be stay away from certain topics."
+                "sorry, I've been modified to"
+                " stay away from certain topics."
             )
         except Exception as e:
             print(f"Error sending image: {str(e)}")
             response_text = (
-                "It seems my engineers are a dud. I can't see. Check back later."
+                "It seems my engineers are a dud."
+                " I can't speak. Check back later."
             )
         return response_text
 
     async def handle_audio(self, chat: ChatSession, audio: bytes) -> str:
         pass
 
-    async def handle_text(self, chat: ChatSession, text: str) -> str:
+    async def handle_text(
+        self, chat: ChatSession, text: str, personality: str = "MARVIN"
+    ) -> str:
         try:
-            text = self.personality + text
+            text = self.PERSONALITIES[personality] + text
             response = await chat.send_message_async(
                 text,
                 generation_config=self.config,
@@ -95,12 +103,14 @@ class GeminiChatModel(ChatModel):
         except ResponseBlockedError as e:
             print(f"Error generating response: {str(e)}")
             response_text = (
-                "sorry, I've been modified to be stay away from certain topics."
+                "sorry, I've been modified to be"
+                " stay away from certain topics."
             )
         except Exception as e:
             print(f"Error sending message: {str(e)}")
             response_text = (
-                "It seems my engineers are a dud. I can't speak. Check back later."
+                "It seems my engineers are a dud."
+                " I can't speak. Check back later."
             )
         return response_text
 
