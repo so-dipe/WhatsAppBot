@@ -9,6 +9,8 @@ class RedisClient:
 
     def save_data(self, chat_id, history, model_name, personality=None):
         try:
+            if personality is None:
+                personality = self.get_data(chat_id)["personality"]
             data = {
                 "history": history,
                 "model_name": model_name,
@@ -26,21 +28,15 @@ class RedisClient:
         try:
             data = self.redis_client.get(chat_id)
             if data:
-                return pickle.loads(data)
-            else:
-                return {"history": False, "model_name": None}
-        except Exception as e:
-            print(f"Error getting chat session: {str(e)}")
-            return None
-
-    def get_chat_session(self, chat_id):
-        try:
-            data = self.redis_client.get(chat_id)
-            if data:
                 data = pickle.loads(data)
-                return data["history"]
+                # print("data from redis", data, " for ", chat_id)
+                return data
             else:
-                return False
+                return {
+                    "history": False,
+                    "model_name": None,
+                    "personality": None,
+                }
         except Exception as e:
             print(f"Error getting chat session: {str(e)}")
             return None
@@ -60,6 +56,7 @@ class RedisClient:
     def delete_data(self, chat_id):
         try:
             self.redis_client.delete(chat_id)
+            print(f"Chat session for {chat_id} deleted.")
         except Exception as e:
             print(f"Error deleting chat session: {str(e)}")
             return None

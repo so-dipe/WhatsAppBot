@@ -1,6 +1,9 @@
 import requests
 from config.config import Config
 import json
+from app.redis.redis_client import RedisClient
+
+redis_client = RedisClient()
 
 
 class WhatsAppClient:
@@ -119,7 +122,6 @@ class WhatsAppClient:
     def process_messages(self, messages):
         processed_messages = []
         for message in messages:
-            print(message)
             processed_message = {
                 "from": message.get("from"),
                 "id": message.get("id"),
@@ -128,6 +130,8 @@ class WhatsAppClient:
             }
             if message.get("type") == "text":
                 processed_message["text"] = message.get("text", {}).get("body")
+                if processed_message["text"].startswith("/"):
+                    processed_message["type"] = "command"
             elif message.get("type") in ["image", "audio", "sticker"]:
                 media_type = message.get("type")
                 media = message.get(media_type, {})
@@ -166,19 +170,28 @@ class WhatsAppClient:
         return reply
 
     def process_personality_selection(self, message):
+        data = redis_client.get_data(message["from"])
         command = message["text"].replace("personality", "").replace(" ", "")
         if "MARVIN" in command.upper():
+            personality = "MARVIN"
             reply = "MARVIN selected. \nStarting a chat session with MARVIN."
         elif "TARS" in command.upper():
+            personality = "TARS"
             reply = "TARS selected. \nStarting a chat session with TARS."
         elif "JARVIS" in command.upper():
+            personality = "JARVIS"
             reply = "JARVIS selected. \nStarting a chat session with JARVIS."
         elif command == "/":
+            personality = None
             reply = self.send_custom_message(
                 message["from"], self.custom_messages["personalities"]
             )
         else:
+            personality = None
             reply = "Oops, the personality you selected doesn't exist yet."
+        redis_client.save_data(
+            message["from"], data["history"], data["model_name"], personality
+        )
         return reply
 
     def process_interactive_message(self, message):
@@ -200,6 +213,10 @@ class WhatsAppClient:
             reply = self.process_model_selection(message)
         elif "help" in message["text"].lower():
             pass
+        elif "reset" in message["text"].lower():
+            redis_client.delete_data(message["from"])
+            print(f"Chat session for {message['from']} deleted.")
+            reply = "Resetting chat history..."
         else:
             reply = (
                 "Oops, It seems you have crossed the land of mortals"

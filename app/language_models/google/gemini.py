@@ -8,26 +8,9 @@ from vertexai.preview.generative_models import (
     ResponseBlockedError,
 )
 from ...redis.redis_client import RedisClient
-from .setup import initialize_vertexai, initialize_speech_client
+from .setup import initialize_vertexai
 from ..chat_model import ChatModel, PERSONALITIES
 import os
-from google.cloud import speech
-
-speech_client = initialize_speech_client()
-
-
-def transcribe(audio: bytes):
-    print("audio type", type(audio))
-    audio = speech.RecognitionAudio(content=audio)
-    config = speech.RecognitionConfig(
-        encoding=speech.RecognitionConfig.AudioEncoding.OGG_OPUS,
-        sample_rate_hertz=16000,
-        language_code="en-US",
-    )
-
-    response = speech_client.recognize(config=config, audio=audio)
-    for result in response.results:
-        return format(result.alternatives[0].transcript)
 
 
 class GeminiChatModel(ChatModel):
@@ -50,7 +33,7 @@ class GeminiChatModel(ChatModel):
         self.PERSONALITIES = PERSONALITIES
         self.config = GenerationConfig(
             temperature=0.9,
-            max_output_tokens=200,
+            max_output_tokens=100,
         )
         self.safety_settings = {
             # hate speech - block all
@@ -93,7 +76,8 @@ class GeminiChatModel(ChatModel):
         self, chat: ChatSession, text: str, personality: str = "MARVIN"
     ) -> str:
         try:
-            text = self.PERSONALITIES[personality] + text
+            # text = self.PERSONALITIES[personality] + text
+            text = self.PERSONALITIES.get(personality, "") + text
             response = await chat.send_message_async(
                 text,
                 generation_config=self.config,
@@ -115,14 +99,21 @@ class GeminiChatModel(ChatModel):
         return response_text
 
     async def get_async_chat_response(
-        self, chat: ChatSession, prompt: str, image=None, audio=None
+        self,
+        chat: ChatSession,
+        prompt: str,
+        image=None,
+        audio=None,
+        personality=None,
     ) -> str:
         if image:
             return await self.handle_image(chat, image)
         elif audio:
             return await self.handle_audio(chat, audio)
         else:
-            return await self.handle_text(chat, prompt)
+            return await self.handle_text(
+                chat, prompt, personality=personality
+            )
 
     def get_chat_response():
         pass
@@ -141,3 +132,21 @@ class GeminiChatModel(ChatModel):
         else:
             chat_session._history = history
         return chat_session
+
+    def save_chat_data(self, chat_id, chat_session, personality=None):
+        history = chat_session.history
+        self.redis_client.save_data(
+            chat_id, history, self.model_name, personality
+        )
+
+    def get_chat_data(self, chat_id):
+        chat_session = self.init_chat()
+        data = self.redis_client.get_data(chat_id)
+        personality = data.get("personality")
+        history = data.get("history", False)
+        model_name = data.get("model_name", None)
+        if (history is False) or model_name != self.model_name:
+            self.save_chat_data(chat_id, chat_session, personality)
+        else:
+            chat_session._history = history
+        return chat_session, personality

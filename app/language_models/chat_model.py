@@ -21,3 +21,11 @@ class ChatModel(ABC):
     @abstractmethod
     def get_history(self, chat_id):
         pass
+
+    @abstractmethod
+    def save_chat_data(self, chat_id, chat_session, personality="MARVIN"):
+        pass
+
+    @abstractmethod
+    def get_chat_data(self, chat_id):
+        pass
