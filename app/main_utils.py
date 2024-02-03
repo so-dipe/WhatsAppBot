@@ -5,7 +5,7 @@ from app.language_models.google.google_chat_model import GoogleChatModel
 from app.language_models.google.gemini import GeminiChatModel
 
 
-whatsapp_client = WhatsAppClient()
+whatsapp_client = WhatsAppClient(redis_client=RedisClient())
 redis_client = RedisClient()
 
 chat_models = [

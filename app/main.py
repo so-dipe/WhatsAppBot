@@ -1,14 +1,11 @@
 from fastapi import FastAPI, Request
 from config.config import Config
 from app.whatsapp.whatsapp_client import WhatsAppClient
-from app.language_models.google.google_chat_model import GoogleChatModel
-from app.language_models.google.gemini import GeminiChatModel
 from app.redis.redis_client import RedisClient
 from .main_utils import is_message_old, process_incoming_message
 
 VERIFY_TOKEN = Config.VERIFY_TOKEN
-whatsapp_client = WhatsAppClient()
-redis_client = RedisClient()
+whatsapp_client = WhatsAppClient(RedisClient())
 
 app = FastAPI()
 
@@ -35,6 +32,8 @@ async def callback(request: Request):
             reply = await process_incoming_message(message)
 
             if reply:
-                whatsapp_client.reply_message(message["from"], message["id"], reply)
+                whatsapp_client.reply_message(
+                    message["from"], message["id"], reply
+                )
                 print(f"Reply sent to {message['from']}")
     return {"status": "success"}, 200
