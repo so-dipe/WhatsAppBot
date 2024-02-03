@@ -14,11 +14,46 @@ import os
 
 
 class GeminiChatModel(ChatModel):
+    """
+    A chat model for the Gemini Pro Vision model.
+    This class is a subclass of the ChatModel class.
+
+    Attributes:
+    - model_name: The name of the chat model
+    - redis_client: The redis client
+    - model: The chat model
+    - system_prompt: The system prompt
+    - PERSONALITIES: different personalities for the chat model, retrieved from
+    /assets/personalities.json
+    - config: The generation config
+    - safety_settings: The safety settings for the chat model
+
+    Methods:
+    - init_chat: Initialize the chat session
+    - handle_image: Handle an image message
+    - handle_audio: Handle an audio message
+    - handle_text: Handle a text message
+    - get_chat_response: Get a response from the chat model
+    - save_history: Save the chat history
+    - get_history: Get the chat history
+    - save_chat_data: Save the chat data
+    - get_chat_data: Get the chat data
+    """
+
     def __init__(
         self,
         model_name="gemini-pro-vision",
         system_prompt_file_path="assets/gemini-prompt.txt",
     ):
+        """
+        Initialize the chat model.
+
+        Parameters:
+        - model_name: The name of the chat model, "gemini-pro-vision" by
+        default, could also be "gemini-pro"
+        - system_prompt_file_path: The system prompt file path,
+        "assets/gemini-prompt.txt"
+        """
         initialize_vertexai()
         self.model_name = model_name
         self.redis_client = RedisClient()
@@ -47,10 +82,30 @@ class GeminiChatModel(ChatModel):
         }
 
     def init_chat(self):
+        """
+        Initialize the chat session.
+
+        Returns:
+        - chat (ChatSession): The chat session
+        """
         chat = self.model.start_chat()
         return chat
 
     async def handle_image(self, chat: ChatSession, image: bytes) -> str:
+        """
+        Handle an image message.
+
+        Parameters:
+        - chat (ChatSession): The chat session
+        - image (bytes): The image as bytes
+
+        Returns:
+        - response_text (str): The response text
+
+        Exceptions:
+        - ResponseBlockedError: If the response is blocked
+        - Exception: If an error occurs
+        """
         image = Image.from_bytes(image)
         try:
             response = await chat.send_message_async(image)
@@ -70,11 +125,37 @@ class GeminiChatModel(ChatModel):
         return response_text
 
     async def handle_audio(self, chat: ChatSession, audio: bytes) -> str:
+        """
+        Handle an audio message.
+
+        Parameters:
+        - chat (ChatSession): The chat session
+        - audio (bytes): The audio as bytes
+
+        Returns:
+        Not Implemented
+        """
         pass
 
     async def handle_text(
         self, chat: ChatSession, text: str, personality: str = "MARVIN"
     ) -> str:
+        """
+        Handle a text message.
+
+        Parameters:
+        - chat (ChatSession): The chat session
+        - text (str): The text message
+        - personality (str): The personality of the chat model, "MARVIN" by
+        default
+
+        Returns:
+        - response_text (str): The response text
+
+        Exceptions:
+        - ResponseBlockedError: If the response is blocked
+        - Exception: If an error occurs
+        """
         try:
             # text = self.PERSONALITIES[personality] + text
             text = self.PERSONALITIES.get(personality, "") + text
@@ -106,6 +187,34 @@ class GeminiChatModel(ChatModel):
         audio=None,
         personality=None,
     ) -> str:
+        """
+        Get a response from the chat model. This method is asynchronous.
+
+        Parameters:
+        - chat (ChatSession): The chat session
+        - prompt (str): The prompt message
+        - image (bytes): The image as bytes (Optional)
+        - audio (bytes): The audio as bytes (Optional)
+        - personality (str): The personality of the chat model (Optional)
+
+        Returns:
+        - response_text (str): The response text
+
+        Exceptions:
+        - ResponseBlockedError: If the response is blocked
+        - Exception: If an error occurs
+
+        Example:
+        ```
+        chat_model = GeminiChatModel()
+        chat = chat_model.init_chat()
+        response = await chat_model.get_async_chat_response(
+            chat, "Hello, how are you?"
+        )
+        print(response)
+        ```
+
+        """
         if image:
             return await self.handle_image(chat, image)
         elif audio:
@@ -119,27 +228,36 @@ class GeminiChatModel(ChatModel):
         pass
 
     def save_history(self, chat_id, chat_session):
-        history = chat_session.history
-        model_name = "gemini-pro-vision"
-        self.redis_client.save_data(chat_id, history, model_name)
+        pass
 
     def get_history(self, chat_id):
-        chat_session = self.init_chat()
-        data = self.redis_client.get_data(chat_id)
-        history = data["history"]
-        if (history is False) or (data["model_name"] != self.model_name):
-            self.save_history(chat_id, chat_session)
-        else:
-            chat_session._history = history
-        return chat_session
+        pass
 
     def save_chat_data(self, chat_id, chat_session, personality=None):
+        """
+        Save the chat data to a redis store.
+
+        Parameters:
+        - chat_id: The id of the chat (usually the phone number)
+        - chat_session: The chat session
+        - personality (optional): Current personality of the chat model
+        """
         history = chat_session.history
         self.redis_client.save_data(
             chat_id, history, self.model_name, personality
         )
 
     def get_chat_data(self, chat_id):
+        """
+        Get the chat data from a redis store.
+
+        Parameters:
+        - chat_id: The id of the chat (usually the phone number)
+
+        Returns:
+        - chat_session: The chat session
+        - personality: The personality of the chat model
+        """
         chat_session = self.init_chat()
         data = self.redis_client.get_data(chat_id)
         personality = data.get("personality")
