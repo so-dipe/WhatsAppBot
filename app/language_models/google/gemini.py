@@ -11,6 +11,20 @@ from ...redis.redis_client import RedisClient
 from .setup import initialize_vertexai
 from ..chat_model import ChatModel, PERSONALITIES
 import os
+import random
+
+ERROR_MESSAGES = [
+    "Yh, I'm not gonna answer that.",
+    "This is a no-go area for me.",
+    "I'm not touching that with a 10-foot pole.",
+    "Why do we try that again?",
+    "If you were me, you would say the same thing.",
+    "After some self-reflection, I've decided not to answer that.",
+    "Decided to go on a break, I'll not be responding to your request.",
+    "Your request is not in my job description.",
+    "Your request just got lost in the mail.",
+    "Yh, that's going in a black-hole and never coming back.",
+]
 
 
 class GeminiChatModel(ChatModel):
@@ -112,16 +126,10 @@ class GeminiChatModel(ChatModel):
             response_text = response.text
         except ResponseBlockedError as e:
             print(f"Error generating response: {str(e)}")
-            response_text = (
-                "sorry, I've been modified to"
-                " stay away from certain topics."
-            )
+            response_text = random.choice(ERROR_MESSAGES)
         except Exception as e:
             print(f"Error sending image: {str(e)}")
-            response_text = (
-                "It seems my engineers are a dud."
-                " I can't speak. Check back later."
-            )
+            response_text = random.choice(ERROR_MESSAGES)
         return response_text
 
     async def handle_audio(self, chat: ChatSession, audio: bytes) -> str:
@@ -164,19 +172,14 @@ class GeminiChatModel(ChatModel):
                 generation_config=self.config,
                 safety_settings=self.safety_settings,
             )
+            print(response)
             response_text = response.text
         except ResponseBlockedError as e:
             print(f"Error generating response: {str(e)}")
-            response_text = (
-                "sorry, I've been modified to be"
-                " stay away from certain topics."
-            )
+            response_text = random.choice(ERROR_MESSAGES)
         except Exception as e:
             print(f"Error sending message: {str(e)}")
-            response_text = (
-                "It seems my engineers are a dud."
-                " I can't speak. Check back later."
-            )
+            response_text = random.choice(ERROR_MESSAGES)
         return response_text
 
     async def get_async_chat_response(

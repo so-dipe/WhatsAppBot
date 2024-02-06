@@ -11,10 +11,12 @@ from app.whatsapp.whatsapp_client import WhatsAppClient
 from app.redis.redis_client import RedisClient
 from app.language_models.google.google_chat_model import GoogleChatModel
 from app.language_models.google.gemini import GeminiChatModel
+from app.ai_agents.agents.chatbison import ChatBisonAgent
 
 
 whatsapp_client = WhatsAppClient(redis_client=RedisClient())
 redis_client = RedisClient()
+agent = ChatBisonAgent(name="bison")
 
 chat_models = [
     GoogleChatModel(),
@@ -74,10 +76,27 @@ async def process_text_message(
     Returns:
         str: The reply to the message.
     """
-    reply = await chat_model.get_async_chat_response(
-        chat_session, message["text"], personality=personality
-    )
-    return reply
+    context = agent.respond(message["text"])
+    # print(len(context), len(context[0]), type(context[0][0]))
+    media_ids = []
+    contexts = ""
+    for content in context:
+        if isinstance(content, str):
+            contexts += content
+        elif isinstance(content, list):
+            for i in content:
+                if isinstance(i, bytes):
+                    media_ids.append(whatsapp_client.upload_image(i))
+    if len(media_ids) > 0:
+        for media_id in media_ids:
+            print("sending media message")
+            whatsapp_client.send_media(message["from"], media_id, "image")
+        return None
+    else:
+        reply = await chat_model.get_async_chat_response(
+            chat_session, message["text"] + contexts, personality=personality
+        )
+        return reply
 
 
 async def process_image_message(

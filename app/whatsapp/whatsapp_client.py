@@ -1,6 +1,8 @@
 import requests
 from config.config import Config
 import json
+import tempfile
+import subprocess
 
 
 class WhatsAppClient:
@@ -393,3 +395,86 @@ class WhatsAppClient:
         self.send_custom_message(
             recipient_phone_number, self.custom_messages["personality_select"]
         )
+
+    def upload_media(self, file_path, mime_type):
+        command = [
+            "curl",
+            "-X",
+            "POST",
+            f"{self.API_URL}/media",
+            "-H",
+            f'Authorization: {self.headers["Authorization"]}',
+            "-F",
+            f"file=@{file_path}",
+            "-F",
+            f"type={mime_type}",
+            "-F",
+            "messaging_product=whatsapp",
+        ]
+        try:
+            response = subprocess.run(command, check=True, capture_output=True)
+            response_data = json.loads(response.stdout.decode())
+            if response.returncode == 0:
+                media_id = response_data.get("id")
+                return media_id
+            else:
+                print(response.returncode, response.stderr.decode())
+        except Exception as e:
+            print(f"Error uploading media: {str(e)}")
+
+    def upload_image(self, image):
+        if len(image) > 1024 * 1024 * 5:
+            print("Image size should not exceed 5MB")
+            raise ValueError("Image size should not exceed 5MB")
+        with tempfile.NamedTemporaryFile(suffix=".png") as temp:
+            temp.write(image)
+            temp.flush()
+
+            media_id = self.upload_media(temp.name, mime_type="image/png")
+
+        return media_id
+
+    def send_media(
+        self,
+        recipient_phone_number,
+        media_id,
+        media_type,
+        caption=None,
+        filename=None,
+    ):
+        payload = {
+            "messaging_product": "whatsapp",
+            "recipient_type": "individual",
+            "to": recipient_phone_number,
+            "type": media_type,
+            media_type: {
+                "id": media_id,
+            },
+        }
+        if caption:
+            payload[media_type]["caption"] = caption
+        if filename:
+            payload[media_type]["filename"] = filename
+        try:
+            response = requests.post(
+                f"{self.API_URL}/messages", json=payload, headers=self.headers
+            )
+            if response.status_code == 200:
+                print("Image sent successfully!")
+                self.delete_media(media_id)
+            else:
+                print(response.status_code, response.text)
+        except Exception as e:
+            print(f"Error sending media: {str(e)}")
+
+    def delete_media(self, media_id):
+        url = Config.WHATSAPP_API_URL + media_id
+
+        try:
+            response = requests.delete(url, headers=self.headers)
+            if response.status_code == 200:
+                print("Media deleted successfully!")
+            else:
+                print(response.status_code, response.text)
+        except Exception as e:
+            print(f"Error deleting media: {str(e)}")
