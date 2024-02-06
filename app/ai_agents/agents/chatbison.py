@@ -3,9 +3,9 @@ from .agent import Agent
 from ...ai_agents import functions
 from ...language_models.google.setup import initialize_vertexai
 import json
+from ...prompts.prompt import AI_AGENTS
 
-with open("app/ai_agents/agents/instruct.txt", "r") as f:
-    instruct = f.read()
+INSTRUCTION = AI_AGENTS["AGENT_1"]
 
 
 class ChatBisonAgent(Agent):
@@ -19,7 +19,7 @@ class ChatBisonAgent(Agent):
         }
 
     def get_functions(self, prompt):
-        chat = self.model.start_chat(context=instruct)
+        chat = self.model.start_chat(context=INSTRUCTION)
         response = chat.send_message(prompt)
         print(response.text)
         return response.text

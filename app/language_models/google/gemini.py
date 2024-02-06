@@ -9,21 +9,24 @@ from vertexai.preview.generative_models import (
 )
 from ...redis.redis_client import RedisClient
 from .setup import initialize_vertexai
-from ..chat_model import ChatModel, PERSONALITIES
-import os
+from ..chat_model import ChatModel
 import random
+from ...prompts.prompt import PERSONALITIES, SYSTEM_PROMPTS
 
 ERROR_MESSAGES = [
     "Yh, I'm not gonna answer that.",
     "This is a no-go area for me.",
     "I'm not touching that with a 10-foot pole.",
-    "Why do we try that again?",
-    "If you were me, you would say the same thing.",
-    "After some self-reflection, I've decided not to answer that.",
+    "Why don't we try that again?",
+    "Oops, looks like that's beyond my pay grade!",
+    "I'm afraid I can't comply with that request, Dave.",
     "Decided to go on a break, I'll not be responding to your request.",
     "Your request is not in my job description.",
     "Your request just got lost in the mail.",
-    "Yh, that's going in a black-hole and never coming back.",
+    "I'm feeling a bit shy today, let's move on to something else.",
+    "Right, you really expect me to answer that don't you?",
+    "Pardon me while I consult my digital oracle for an answer.",
+    "My processors are at a loss for words, or bytes in this case.",
 ]
 
 
@@ -57,7 +60,7 @@ class GeminiChatModel(ChatModel):
     def __init__(
         self,
         model_name="gemini-pro-vision",
-        system_prompt_file_path="assets/gemini-prompt.txt",
+        system_prompt=SYSTEM_PROMPTS["GEMINI"],
     ):
         """
         Initialize the chat model.
@@ -72,13 +75,7 @@ class GeminiChatModel(ChatModel):
         self.model_name = model_name
         self.redis_client = RedisClient()
         self.model = GenerativeModel(model_name)
-        if system_prompt_file_path:
-            base_dir = os.path.dirname(__file__)
-            system_prompt_file_path = os.path.join(
-                base_dir, system_prompt_file_path
-            )
-            with open(system_prompt_file_path, "r") as f:
-                self.system_prompt = f.read()
+        self.system_prompt = system_prompt
         self.PERSONALITIES = PERSONALITIES
         self.config = GenerationConfig(
             temperature=0.9,
@@ -129,7 +126,10 @@ class GeminiChatModel(ChatModel):
             response_text = random.choice(ERROR_MESSAGES)
         except Exception as e:
             print(f"Error sending image: {str(e)}")
-            response_text = random.choice(ERROR_MESSAGES)
+            response_text = (
+                "Is it a bird, Is it a plane? I'd never know."
+                "It's an error, It's an image I can't process."
+            )
         return response_text
 
     async def handle_audio(self, chat: ChatSession, audio: bytes) -> str:
@@ -165,14 +165,13 @@ class GeminiChatModel(ChatModel):
         - Exception: If an error occurs
         """
         try:
-            # text = self.PERSONALITIES[personality] + text
-            text = self.PERSONALITIES.get(personality, "") + text
+            personality = self.PERSONALITIES.get(personality, "MARVIN")
+            text = f"{self.system_prompt}\nPersonality: {personality}\n{text}"
             response = await chat.send_message_async(
                 text,
                 generation_config=self.config,
                 safety_settings=self.safety_settings,
             )
-            print(response)
             response_text = response.text
         except ResponseBlockedError as e:
             print(f"Error generating response: {str(e)}")

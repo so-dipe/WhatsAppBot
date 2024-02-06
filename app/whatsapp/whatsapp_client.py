@@ -292,13 +292,16 @@ class WhatsAppClient:
         command = message["text"].replace("personality", "").replace(" ", "")
         if "MARVIN" in command.upper():
             personality = "MARVIN"
-            reply = "MARVIN selected. \nStarting a chat session with MARVIN."
-        elif "TARS" in command.upper():
-            personality = "TARS"
-            reply = "TARS selected. \nStarting a chat session with TARS."
-        elif "JARVIS" in command.upper():
+            reply = "Hello, Marvin here... What do you want? (sigh)"
+        elif "K-VRC" in command.upper():
+            personality = "K-VRC"
+            reply = "I'm K-VRC."
+        elif "11-45-G" in command.upper():
             personality = "JARVIS"
-            reply = "JARVIS selected. \nStarting a chat session with JARVIS."
+            reply = "11-45-G reporting for duty."
+        elif "ZIMABLUE" in command.upper():
+            personality = "ZimaBlue"
+            reply = "ZimaBlue here. Let's get on with it."
         elif command == "/":
             personality = None
             reply = self.send_custom_message(
