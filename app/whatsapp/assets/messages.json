@@ -1,0 +1,87 @@
+{
+    "model_select": {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": "whatsapp:+919999999999",
+        "type": "interactive",
+        "interactive": {
+            "type": "button",
+            "body": {
+                "text": "Select a chat model"
+            },
+            "action": {
+                "buttons": [
+                    {
+                        "type": "reply",
+                        "reply": {
+                            "id": "0",
+                            "title": "GEMINI PRO"
+                        }
+                    },
+                    {
+                        "type": "reply",
+                        "reply": {
+                            "id": "1",
+                            "title": "MISXTRAL"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "welcome_message": {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": "whatsapp:+919999999999",
+        "type": "text",
+        "text": {
+            "body": "Hello. This is the bot that can!"
+        }
+    },
+    "personality_select": {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": "whatsapp:+919999999999",
+        "type": "interactive",
+        "interactive": {
+            "type": "button",
+            "body": {
+                "text": "Select a personality"
+            },
+            "action": {
+                "buttons": [
+                    {
+                        "type": "reply",
+                        "reply": {
+                            "id": "0",
+                            "title": "MARVIN"
+                        }
+                    },
+                    {
+                        "type": "reply",
+                        "reply": {
+                            "id": "1",
+                            "title": "TARS"
+                        }
+                    },
+                    {
+                        "type": "reply",
+                        "reply": {
+                            "id": "2",
+                            "title": "JARVIS"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "personalities": {
+        "messaging_product": "whatsapp",
+        "recipient_type": "individual",
+        "to": "whatsapp:+919999999999",
+        "type": "text",
+        "text": {
+            "body": "*Personalities*\nhere are the personalities you can choose from.\n*MARVIN*: The Paranoid Android from Hitchhiker's Guide to the Galaxy\n*TARS*: The sarcastic robot from Interstellar\n*JARVIS*: The AI assistant from Ironman"
+        }
+    }
+}
