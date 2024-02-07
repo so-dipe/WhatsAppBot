@@ -38,6 +38,10 @@ class WhatsAppClient:
         recipient.
         send_select_personality_message: Sends a message to select a
         personality to a recipient.
+        upload_media: Uploads media to the API.
+        upload_image: Uploads an image to the API.
+        send_media: Sends media to a recipient.
+        delete_media: Deletes a media from the API.
     """
 
     def __init__(self, redis_client):
@@ -400,6 +404,16 @@ class WhatsAppClient:
         )
 
     def upload_media(self, file_path, mime_type):
+        """
+        Uploads media to the API.
+
+        Args:
+            file_path (str): The path to the file to be uploaded.
+            mime_type (str): The MIME type of the file.
+
+        Returns:
+            str: The ID of the uploaded media.
+        """
         command = [
             "curl",
             "-X",
@@ -425,7 +439,16 @@ class WhatsAppClient:
         except Exception as e:
             print(f"Error uploading media: {str(e)}")
 
-    def upload_image(self, image):
+    def upload_image(self, image: bytes):
+        """
+        Uploads an image to the API.
+
+        Args:
+            image (bytes): The image to be uploaded.
+
+        Returns:
+            str: The ID of the uploaded image.
+        """
         if len(image) > 1024 * 1024 * 5:
             print("Image size should not exceed 5MB")
             raise ValueError("Image size should not exceed 5MB")
@@ -445,6 +468,19 @@ class WhatsAppClient:
         caption=None,
         filename=None,
     ):
+        """
+        Sends media to a recipient.
+
+        Args:
+            recipient_phone_number (str): The phone number of the recipient.
+            media_id (str): The ID of the media to be sent.
+            media_type (str): The type of media to be sent (Image, Audio, Doc,
+            etc.)
+            caption (str, optional): The caption for the media. Defaults to
+            None.
+            filename (str, optional): The filename of the media
+            (Required for documents). Defaults to None.
+        """
         payload = {
             "messaging_product": "whatsapp",
             "recipient_type": "individual",
@@ -471,6 +507,12 @@ class WhatsAppClient:
             print(f"Error sending media: {str(e)}")
 
     def delete_media(self, media_id):
+        """
+        Deletes a media from the API.
+
+        Args:
+            media_id (str): The ID of the media to be deleted.
+        """
         url = Config.WHATSAPP_API_URL + media_id
 
         try:

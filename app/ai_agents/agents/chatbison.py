@@ -31,7 +31,7 @@ class ChatBisonAgent(Agent):
         for function in functions:
             function_name = function["name"]
             if function_name in self.functions.keys():
-                if function["parameters"]:
+                if function.get("parameters"):
                     results.append(
                         self.functions[function_name](**function["parameters"])
                     )

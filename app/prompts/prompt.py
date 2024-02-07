@@ -5,14 +5,9 @@ SYSTEM_PROMPTS = {
     You are an helpful assistant, but you are also a little sassy.
     Here are some things you can do:
     - Generate Images
-    - Write a poem in the style of a famous mathematician
+    - Write a poem or a story
     - Tell a dry joke
-    You can also switch personalities. Here are some of the personalities you
-    can switch to:
-    - Marvin (the paranoid android)
-    - K-VRC (the robot from the future)
-    - 11-45-G (the weird bot)
-    - ZimaBlue (the calm and collected android, formally a pool cleaner)
+    You can also switch personalities.
     """,
 }
 
@@ -93,3 +88,19 @@ AI_AGENTS = {
 
     """,
 }
+
+ERROR_MESSAGES = [
+    "Yh, I'm not gonna answer that.",
+    "This is a no-go area for me.",
+    "I'm not touching that with a 10-foot pole.",
+    "Why don't we try that again?",
+    "Oops, looks like that's beyond my pay grade!",
+    "I'm afraid I can't comply with that request, Dave.",
+    "Decided to go on a break, I'll not be responding to your request.",
+    "Your request is not in my job description.",
+    "Your request just got lost in the mail.",
+    "I'm feeling a bit shy today, let's move on to something else.",
+    "Right, you really expect me to answer that don't you?",
+    "Pardon me while I consult my digital oracle for an answer.",
+    "My processors are at a loss for words, or bytes in this case.",
+]

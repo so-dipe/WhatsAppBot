@@ -61,6 +61,27 @@ def get_chat_model(message):
         return chat_models[1]
 
 
+def get_context(message):
+    """
+    Retrieves a context for a message from an AI agent.
+
+    Args:
+        message (dict): The message to get context for.
+
+    Returns:
+        str: The context of the message.
+    """
+    contexts = agent.respond(message["text"])
+    print(contexts)
+    for context in contexts:
+        if isinstance(context, bytes):
+            media_id = whatsapp_client.upload_image(context)
+            whatsapp_client.send_media(message["from"], media_id, "image")
+            return None
+        elif isinstance(context, str):
+            return context
+
+
 async def process_text_message(
     chat_model, chat_session, message, personality=None
 ):
@@ -76,27 +97,16 @@ async def process_text_message(
     Returns:
         str: The reply to the message.
     """
-    context = agent.respond(message["text"])
-    # print(len(context), len(context[0]), type(context[0][0]))
-    media_ids = []
-    contexts = ""
-    for content in context:
-        if isinstance(content, str):
-            contexts += content
-        elif isinstance(content, list):
-            for i in content:
-                if isinstance(i, bytes):
-                    media_ids.append(whatsapp_client.upload_image(i))
-    if len(media_ids) > 0:
-        for media_id in media_ids:
-            print("sending media message")
-            whatsapp_client.send_media(message["from"], media_id, "image")
-        return None
+    context = get_context(message)
+    if context:
+        text = f"{message['text']} {context}"
     else:
-        reply = await chat_model.get_async_chat_response(
-            chat_session, message["text"] + contexts, personality=personality
-        )
-        return reply
+        text = message["text"]
+    print(chat_session.history)
+    reply = await chat_model.get_async_chat_response(
+        chat_session, text, personality=personality
+    )
+    return reply
 
 
 async def process_image_message(

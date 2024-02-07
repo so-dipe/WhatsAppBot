@@ -11,23 +11,7 @@ from ...redis.redis_client import RedisClient
 from .setup import initialize_vertexai
 from ..chat_model import ChatModel
 import random
-from ...prompts.prompt import PERSONALITIES, SYSTEM_PROMPTS
-
-ERROR_MESSAGES = [
-    "Yh, I'm not gonna answer that.",
-    "This is a no-go area for me.",
-    "I'm not touching that with a 10-foot pole.",
-    "Why don't we try that again?",
-    "Oops, looks like that's beyond my pay grade!",
-    "I'm afraid I can't comply with that request, Dave.",
-    "Decided to go on a break, I'll not be responding to your request.",
-    "Your request is not in my job description.",
-    "Your request just got lost in the mail.",
-    "I'm feeling a bit shy today, let's move on to something else.",
-    "Right, you really expect me to answer that don't you?",
-    "Pardon me while I consult my digital oracle for an answer.",
-    "My processors are at a loss for words, or bytes in this case.",
-]
+from ...prompts.prompt import PERSONALITIES, SYSTEM_PROMPTS, ERROR_MESSAGES
 
 
 class GeminiChatModel(ChatModel):
