@@ -25,7 +25,14 @@ class RedisClient:
         """
         self.redis_client = redis.StrictRedis.from_url(Config.REDIS_URL)
 
-    def save_data(self, chat_id, history, model_name, personality=None):
+    def save_data(
+        self,
+        chat_id,
+        history,
+        model_name,
+        personality=None,
+        agent_history=None,
+    ):
         """
         Saves the chat data to the redis store.
 
@@ -44,10 +51,13 @@ class RedisClient:
         try:
             if personality is None:
                 personality = self.get_data(chat_id)["personality"]
+            if agent_history is None:
+                agent_history = self.get_data(chat_id)["agent_history"]
             data = {
                 "history": history,
                 "model_name": model_name,
                 "personality": personality,
+                "agent_history": agent_history,
             }
             data = pickle.dumps(data)
             with self.redis_client.pipeline() as pipe:
@@ -72,13 +82,13 @@ class RedisClient:
             data = self.redis_client.get(chat_id)
             if data:
                 data = pickle.loads(data)
-                # print("data from redis", data, " for ", chat_id)
                 return data
             else:
                 return {
                     "history": False,
                     "model_name": None,
                     "personality": None,
+                    "agent_history": None,
                 }
         except Exception as e:
             print(f"Error getting chat session: {str(e)}")

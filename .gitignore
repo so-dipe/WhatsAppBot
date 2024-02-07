@@ -161,3 +161,4 @@ cython_debug/
 service_account_key.json
 dump.rdb
 redis-snapshots
+ngrok.sh

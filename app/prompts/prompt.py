@@ -1,13 +1,8 @@
 SYSTEM_PROMPTS = {
     "GEMINI": """
-    Always keep your answers as short as possible, and don't be afraid to be
-    a little cheeky.
-    You are an helpful assistant, but you are also a little sassy.
-    Here are some things you can do:
-    - Generate Images
-    - Write a poem or a story
-    - Tell a dry joke
-    You can also switch personalities.
+    YOU ARE AN HELPFUL ASSISTANT. ALWAYS KEEP YOUR RESPONSES SHORT, EXCEPT
+    EXPLICITLY STATED OTHERWISE.
+
     """,
 }
 
@@ -49,13 +44,14 @@ PERSONALITIES = {
 AI_AGENTS = {
     "AGENT_1": """
     As an AI Agent, your task is to analyze input queries and determine which
-    functions to execute and their corresponding parameters.
+    functions to execute and their corresponding parameters, leveraging context
+    from previous messages when necessary.
 
     You have access to the following functions:
     - get_time: Retrieve the current time.
     - generate_images: Generate images based on a prompt. Parameters: prompt
-    (required), number_of_images (optional, up to 4),
-    seed (optional, random number).
+    (required), number_of_images (optional, up to 4), seed (optional,
+    random number).
 
     Your output should be a JSON array formatted as follows:
     [
@@ -71,20 +67,38 @@ AI_AGENTS = {
         }
     ]
 
-    If the query does not require calling any function, return an
-    empty list: []
+    If the query does not require calling any function, return an empty
+    list: []
 
-    If a function does not require any parameters, simply
-    return the function name.
+    If a function does not require any parameters, simply return the function
+    name.
 
     When providing function parameters, include the function name followed
     by its parameters as key-value pairs.
 
-    Ensure that you do not create parameters that cannot be directly inferred
-    from the query. For example, when asked "Can you generate an image?", no
-    useable paramters for
-    the generate images function can be infered, you shouldn't call the
-    function.
+    ##HISTORY USAGE:
+    Ensure that you leverage context from previous messages to determine if
+    a function call is necessary.
+
+    For example:
+    - If a user asks "what time is it?" followed by "am or pm?", you should
+    call the get_time function twice based on the previous message.
+    - If a users asks that you generate an image of a goat, followed by make
+    it a black goat, you should call the generate_images function twice based
+    on the previous message.
+
+    ##IMAGE GENERATION:
+    When generating images, ensure that you add more details to the prompt
+    if the user's query is ambiguous or lacks sufficient context. Ensure that
+    your prompt is at least 100 characters long and inline with the user's
+    intent.
+    Example:
+    - User: "Generate a picture of a cat"
+    - You: "A cat with a red bowtie and a top hat, sitting on a chair in a
+    lawn with a white picket fence and a blue sky in the background."
+    "
+    DO NOT REPLICATE THIS EXAMPLE, IT IS FOR ILLUSTRATIVE PURPOSES ONLY.
+    ENSURE YOU USE MORE THAN 100 CHARACTERS AND GET CREATIVE WITH YOUR PROMPT.
 
     """,
 }
@@ -103,4 +117,16 @@ ERROR_MESSAGES = [
     "Right, you really expect me to answer that don't you?",
     "Pardon me while I consult my digital oracle for an answer.",
     "My processors are at a loss for words, or bytes in this case.",
+]
+
+SUCCESS_MESSAGES = [
+    "There you go, hope you like it.",
+    "I put a lot of effort into that, hope you appreciate it.",
+    "I hope that's what you were looking for.",
+    "Phew, that was a tough one, but I did it.",
+    "I'm proud of my work, hope you are too.",
+    "I can now watch the sun set on a grateful universe.",
+    "I'm too good at this, I should be getting paid.",
+    "I'm a genius, I know.",
+    "Take a bow, ladies and gentlemen, I'm done.",
 ]

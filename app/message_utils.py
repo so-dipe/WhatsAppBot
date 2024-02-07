@@ -6,12 +6,14 @@ It contains functions for handling all tasks related to sending post requests
 to the whatsapp webhook.
 """
 
+import random
 from datetime import datetime, timedelta
 from app.whatsapp.whatsapp_client import WhatsAppClient
 from app.redis.redis_client import RedisClient
 from app.language_models.google.google_chat_model import GoogleChatModel
 from app.language_models.google.gemini import GeminiChatModel
 from app.ai_agents.agents.chatbison import ChatBisonAgent
+from .prompts.prompt import SUCCESS_MESSAGES
 
 
 whatsapp_client = WhatsAppClient(redis_client=RedisClient())
@@ -71,12 +73,12 @@ def get_context(message):
     Returns:
         str: The context of the message.
     """
-    contexts = agent.respond(message["text"])
+    contexts = agent.respond(message["text"], message["from"])
     for context in contexts:
         if isinstance(context, bytes):
             media_id = whatsapp_client.upload_image(context)
             whatsapp_client.send_media(message["from"], media_id, "image")
-            return None
+            return random.choice(SUCCESS_MESSAGES)
         elif isinstance(context, str):
             return context
 
@@ -99,6 +101,8 @@ async def process_text_message(
     context = get_context(message)
     if context:
         text = f"{message['text']} {context}"
+        if context in SUCCESS_MESSAGES:
+            return context
     else:
         text = message["text"]
     reply = await chat_model.get_async_chat_response(
