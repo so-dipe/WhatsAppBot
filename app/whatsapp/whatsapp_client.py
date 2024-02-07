@@ -297,11 +297,11 @@ class WhatsAppClient:
         if "MARVIN" in command.upper():
             personality = "MARVIN"
             reply = "Hello, Marvin here... What do you want? (sigh)"
-        elif "K-VRC" in command.upper():
+        elif "KVRC" in command.upper():
             personality = "K-VRC"
             reply = "I'm K-VRC."
-        elif "11-45-G" in command.upper():
-            personality = "JARVIS"
+        elif "1145G" in command.upper():
+            personality = "11-45-G"
             reply = "11-45-G reporting for duty."
         elif "ZIMABLUE" in command.upper():
             personality = "ZimaBlue"
@@ -313,7 +313,10 @@ class WhatsAppClient:
             )
         else:
             personality = None
-            reply = "Oops, the personality you selected doesn't exist yet."
+            reply = (
+                "Oops! It seems like that personality hasn't been programmed"
+                " into me yet. Let's stick with the ones I know for now."
+            )
         self.redis_client.save_data(
             message["from"], data["history"], data["model_name"], personality
         )
@@ -335,8 +338,7 @@ class WhatsAppClient:
             reply = self.process_personality_selection(message)
         else:
             reply = (
-                "Oops, It seems you have crossed the land of mortals"
-                "and become a god. Sadly, I cant process your request."
+                "I dont know how you got here, but I can't let you through."
             )
         return reply
 
@@ -359,11 +361,11 @@ class WhatsAppClient:
         elif "reset" in message["text"].lower():
             self.redis_client.delete_data(message["from"])
             print(f"Chat session for {message['from']} deleted.")
-            reply = "Resetting chat history..."
+            reply = "Starting fresh, are we? What shall we do next?"
         else:
             reply = (
-                "Oops, It seems you have crossed the land of mortals"
-                "and become a god. Sadly, I cant process your request."
+                "Oops! Looks like I'm not familiar with that command."
+                "Let's try something else."
             )
         return reply
 
