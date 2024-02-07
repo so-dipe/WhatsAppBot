@@ -72,7 +72,6 @@ def get_context(message):
         str: The context of the message.
     """
     contexts = agent.respond(message["text"])
-    print(contexts)
     for context in contexts:
         if isinstance(context, bytes):
             media_id = whatsapp_client.upload_image(context)
@@ -102,7 +101,6 @@ async def process_text_message(
         text = f"{message['text']} {context}"
     else:
         text = message["text"]
-    print(chat_session.history)
     reply = await chat_model.get_async_chat_response(
         chat_session, text, personality=personality
     )
