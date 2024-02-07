@@ -21,7 +21,6 @@ class ChatBisonAgent(Agent):
     def get_functions(self, prompt):
         chat = self.model.start_chat(context=INSTRUCTION)
         response = chat.send_message(prompt)
-        print(response.text)
         return response.text
 
     def parse(self, prompt):
