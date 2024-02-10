@@ -27,7 +27,6 @@ class GeminiAgent(Agent):
             response = chat.send_message(self.INSTRUCTION + str(prompt))
             self.save_agent_history(chat_id, chat)
             response = response.text.replace("```json", "").replace("```", "")
-            print(f"Agent response: {response}")
             return json.loads(response)
         except Exception as e:
             print(f"Error getting function: {str(e)}")
@@ -63,7 +62,6 @@ class GeminiAgent(Agent):
         if data:
             data["agent_history"] = pickle.dumps(history)
             self.redis_client.save_data(chat_id, **data)
-            print("Agent history saved")
 
     def get_agent_history(self, chat_id):
         chat = self.model.start_chat()

@@ -42,4 +42,8 @@ def initialize_vertexai():
         credentials = service_account.Credentials.from_service_account_info(
             credentials
         )
-    vertexai.init(project=Config.GOOGLE_PROJECT_ID, credentials=credentials)
+    vertexai.init(
+        project=Config.GOOGLE_PROJECT_ID,
+        credentials=credentials,
+        location="us-central1",
+    )

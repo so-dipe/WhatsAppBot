@@ -8,11 +8,11 @@ to the whatsapp webhook.
 
 import random
 from datetime import datetime, timedelta
-from app.whatsapp.whatsapp_client import WhatsAppClient
-from app.redis.redis_client import RedisClient
-from app.language_models.google.google_chat_model import GoogleChatModel
-from app.language_models.google.gemini import GeminiChatModel
-from app.ai_agents.agents.gemini import GeminiAgent
+from .whatsapp.whatsapp_client import WhatsAppClient
+from .redis.redis_client import RedisClient
+from .language_models.google.google_chat_model import GoogleChatModel
+from .language_models.google.gemini import GeminiChatModel
+from .ai_agents.agents.gemini import GeminiAgent
 from .prompts.prompt import SUCCESS_MESSAGES
 
 
@@ -40,7 +40,7 @@ def is_message_old(message):
     now = datetime.now()
     timestamp = datetime.fromtimestamp(int(message["timestamp"]))
     difference = now - timestamp
-    return difference > timedelta(minutes=5)
+    return difference > timedelta(minutes=3)
 
 
 def get_chat_model(message):
@@ -79,11 +79,10 @@ def get_context(message):
         return None
     if isinstance(contexts, str):
         return contexts
-    for context in contexts:
-        if isinstance(context, bytes):
-            media_id = whatsapp_client.upload_image(context)
-            whatsapp_client.send_media(message["from"], media_id, "image")
-            return random.choice(SUCCESS_MESSAGES)
+    if isinstance(contexts, bytes):
+        media_id = whatsapp_client.upload_image(contexts)
+        whatsapp_client.send_media(message["from"], media_id, "image")
+        return random.choice(SUCCESS_MESSAGES)
 
 
 async def process_text_message(
@@ -105,7 +104,7 @@ async def process_text_message(
     if context:
         text = f"{message['text']} \n AI_AGENT: {context}"
         if context in SUCCESS_MESSAGES:
-            return context
+            return None
     else:
         text = message["text"]
     reply = await chat_model.get_async_chat_response(
