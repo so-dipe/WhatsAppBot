@@ -362,12 +362,9 @@ class WhatsAppClient:
             self.redis_client.delete_data(message["from"])
             print(f"Chat session for {message['from']} deleted.")
             reply = (
-                "Starting fresh, are we? What shall we do next?"
-                "Incase you've forgotten, Here are some things I can do: \n"
-                " - Generate Images\n"
-                " - Write a poem or a story\n"
-                " - Tell a dry joke\n"
-                "I can also switch personalities. Just use the commands."
+                "Chat History deleted. \n"
+                "Starting over... \n \n"
+                "What can I do for you?\n"
             )
         else:
             reply = (
