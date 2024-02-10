@@ -110,10 +110,7 @@ class GeminiChatModel(ChatModel):
             response_text = random.choice(ERROR_MESSAGES)
         except Exception as e:
             print(f"Error sending image: {str(e)}")
-            response_text = (
-                "Is it a bird, Is it a plane? I'd never know."
-                "It's an error, It's an image I can't process."
-            )
+            response_text = "Damn, I'm sorry, I can't see that."
         return response_text
 
     async def handle_audio(self, chat: ChatSession, audio: bytes) -> str:
