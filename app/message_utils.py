@@ -12,13 +12,14 @@ from app.whatsapp.whatsapp_client import WhatsAppClient
 from app.redis.redis_client import RedisClient
 from app.language_models.google.google_chat_model import GoogleChatModel
 from app.language_models.google.gemini import GeminiChatModel
-from app.ai_agents.agents.chatbison import ChatBisonAgent
+from app.ai_agents.agents.gemini import GeminiAgent
 from .prompts.prompt import SUCCESS_MESSAGES
 
 
 whatsapp_client = WhatsAppClient(redis_client=RedisClient())
 redis_client = RedisClient()
-agent = ChatBisonAgent(name="bison")
+# agent = ChatBisonAgent()
+agent = GeminiAgent()
 
 chat_models = [
     GoogleChatModel(),
@@ -74,13 +75,15 @@ def get_context(message):
         str: The context of the message.
     """
     contexts = agent.respond(message["text"], message["from"])
+    if not contexts:
+        return None
+    if isinstance(contexts, str):
+        return contexts
     for context in contexts:
         if isinstance(context, bytes):
             media_id = whatsapp_client.upload_image(context)
             whatsapp_client.send_media(message["from"], media_id, "image")
             return random.choice(SUCCESS_MESSAGES)
-        elif isinstance(context, str):
-            return context
 
 
 async def process_text_message(
@@ -100,7 +103,7 @@ async def process_text_message(
     """
     context = get_context(message)
     if context:
-        text = f"{message['text']} {context}"
+        text = f"{message['text']} \n AI_AGENT: {context}"
         if context in SUCCESS_MESSAGES:
             return context
     else:

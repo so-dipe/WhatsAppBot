@@ -6,7 +6,7 @@ initialize_vertexai()
 model = ImageGenerationModel.from_pretrained("imagegeneration@002")
 
 
-def generate_images(prompt, num_images=1, seed=42):
+def generate_images(prompt):
     """
     Generates images based on a prompt.
 
@@ -19,6 +19,10 @@ def generate_images(prompt, num_images=1, seed=42):
         list: The generated images.
 
     """
-    response = model.generate_images(prompt, number_of_images=1, seed=seed)
-    images = [image._image_bytes for image in response]
+    try:
+        response = model.generate_images(prompt)
+        images = [image._image_bytes for image in response]
+    except Exception as e:
+        print(f"Error generating images: {str(e)}")
+        return None
     return images[0]

@@ -10,9 +10,5 @@ class Agent(ABC):
         self.name = name
 
     @abstractmethod
-    def parse(self, prompt):
-        pass
-
-    @abstractmethod
     def respond(self, functions):
         pass

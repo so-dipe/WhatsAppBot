@@ -149,7 +149,10 @@ class GeminiChatModel(ChatModel):
         - Exception: If an error occurs
         """
         try:
-            personality = self.PERSONALITIES.get(personality, "MARVIN")
+            default_personality = self.PERSONALITIES.get("11-45-G", None)
+            personality = self.PERSONALITIES.get(
+                personality, default_personality
+            )
             text = f"{self.system_prompt}\nPersonality: {personality}\n{text}"
             response = await chat.send_message_async(
                 text,
