@@ -127,7 +127,10 @@ class GeminiChatModel(ChatModel):
         pass
 
     async def handle_text(
-        self, chat: ChatSession, text: str, personality: str = "MARVIN"
+        self,
+        chat: ChatSession,
+        text: str,
+        personality: str = "MARVIN",
     ) -> str:
         """
         Handle a text message.
@@ -146,22 +149,24 @@ class GeminiChatModel(ChatModel):
         - Exception: If an error occurs
         """
         try:
-            default_personality = self.PERSONALITIES.get("11-45-G", None)
+            default_personality = self.PERSONALITIES.get("K-VRC", None)
+            print(f"Personality: {personality}")
             personality = self.PERSONALITIES.get(
                 personality, default_personality
             )
+            # content = [Part.from_text(personality), Part.from_text(text)]
             text = f"{self.system_prompt}\nPersonality: {personality}\n{text}"
             response = await chat.send_message_async(
                 text,
                 generation_config=self.config,
-                safety_settings=self.safety_settings,
+                # safety_settings=self.safety_settings,
             )
             response_text = response.text
         except ResponseBlockedError as e:
             print(f"Error generating response: {str(e)}")
             response_text = random.choice(ERROR_MESSAGES)
         except Exception as e:
-            print(f"Error sending message: {str(e)}")
+            print(f"Error generating message: {str(e)}")
             response_text = random.choice(ERROR_MESSAGES)
         return response_text
 
