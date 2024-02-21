@@ -43,7 +43,7 @@ class GeminiChatModel(ChatModel):
 
     def __init__(
         self,
-        model_name="gemini-pro-vision",
+        model_name="gemini-1.0-pro-vision",
         system_prompt=SYSTEM_PROMPTS["GEMINI"],
     ):
         """
