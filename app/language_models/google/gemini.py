@@ -149,7 +149,7 @@ class GeminiChatModel(ChatModel):
         - Exception: If an error occurs
         """
         try:
-            default_personality = self.PERSONALITIES.get("K-VRC", None)
+            default_personality = self.PERSONALITIES.get("11-45-G", None)
             print(f"Personality: {personality}")
             personality = self.PERSONALITIES.get(
                 personality, default_personality
